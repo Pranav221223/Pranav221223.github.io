@@ -79,7 +79,7 @@
     </nav>
 </header>
 
-<div id="mobile-menu" class="fixed inset-0 glass dark:bg-darkBg/95 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-bold translate-x-full transition-transform duration-300">
+<div id="mobile-menu" class="fixed inset-0 glass dark:bg-darkBg/95 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-bold translate-x-full transition-transform duration-500 ease-in-out">
     <button id="close-menu" class="absolute top-6 right-6"><i data-lucide="x" class="w-8 h-8"></i></button>
     <a href="#about" class="menu-link hover:text-teal-500">About</a>
     <a href="#skills" class="menu-link hover:text-teal-500">Skills</a>
@@ -260,240 +260,456 @@
 </footer>
 
 <script>
-    /* 1. THREE.JS Background (PERFORMANCE UPGRADED) */
-    function initThree() {
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
-        // Performance Fix
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
 
-        const particlesGeometry = new THREE.BufferGeometry();
-        const posArray = new Float32Array(1500 * 3);
-        for(let i = 0; i < 4500; i++) posArray[i] = (Math.random() - 0.5) * 10;
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMesh = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({ size: 0.005, color: '#0d9488', transparent: true, opacity: 0.5 }));
-        scene.add(particlesMesh);
-        camera.position.z = 2;
+/* ======================================================
+   1. THREE.JS BACKGROUND (Particle Animation)
+   ====================================================== */
 
-        function animate() {
-            requestAnimationFrame(animate);
-            particlesMesh.rotation.y += 0.001;
-            renderer.render(scene, camera);
-        }
-        animate();
+function initThree() {
+
+    const container = document.getElementById('canvas-container');
+    if(!container || !window.THREE) return;
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+
+    const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: true
+    });
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    container.appendChild(renderer.domElement);
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(1500 * 3);
+
+    for (let i = 0; i < posArray.length; i++) {
+        posArray[i] = (Math.random() - 0.5) * 10;
     }
 
-    /* 2. CHART UI */
-    let skillsChart;
-    function initChart(isDark) {
-        const ctx = document.getElementById('skillsChart').getContext('2d');
-        const color = isDark ? '#94a3b8' : '#475569';
-        skillsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['JavaScript', 'Python', 'ML/AI', 'Node.js', 'React/HTML'],
-                datasets: [{ data: [88, 82, 75, 80, 92], backgroundColor: 'rgba(13, 148, 136, 0.6)', borderColor: '#0d9488', borderWidth: 2, borderRadius: 12 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, max: 100, ticks: { color: color }, grid: { color: isDark ? '#1e293b' : '#e2e8f0' } },
-                    x: { ticks: { color: color }, grid: { display: false } }
+    particlesGeometry.setAttribute(
+        'position',
+        new THREE.BufferAttribute(posArray, 3)
+    );
+
+    const particlesMesh = new THREE.Points(
+        particlesGeometry,
+        new THREE.PointsMaterial({
+            size: 0.005,
+            color: '#0d9488',
+            transparent: true,
+            opacity: 0.5
+        })
+    );
+
+    scene.add(particlesMesh);
+    camera.position.z = 2;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        particlesMesh.rotation.y += 0.001;
+        renderer.render(scene, camera);
+    }
+
+    animate();
+}
+
+/* ======================================================
+   2. SKILLS CHART (Chart.js)
+   ====================================================== */
+
+let skillsChart;
+
+function initChart(isDark) {
+
+    const canvas = document.getElementById('skillsChart');
+    if(!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    const color = isDark ? '#94a3b8' : '#475569';
+
+    skillsChart = new Chart(ctx, {
+
+        type: 'bar',
+
+        data: {
+            labels: ['JavaScript', 'Python', 'ML/AI', 'Node.js', 'React/HTML'],
+            datasets: [{
+                data: [88, 82, 75, 80, 92],
+                backgroundColor: 'rgba(13,148,136,0.6)',
+                borderColor: '#0d9488',
+                borderWidth: 2,
+                borderRadius: 12
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { color: color },
+                    grid: { color: isDark ? '#1e293b' : '#e2e8f0' }
                 },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
+                x: {
+                    ticks: { color: color },
+                    grid: { display: false }
+                }
+            },
 
-    /* 3. SLIDERS Logic */
-    function initSliders() {
-        document.querySelectorAll('.slider-container').forEach(container => {
-            const images = JSON.parse(container.dataset.slides);
-            images.forEach((src, idx) => {
-                const img = document.createElement('img');
-                img.src = src;
-                img.className = `slide-img ${idx === 0 ? 'active' : ''}`;
-                img.onerror = () => img.src = `https://via.placeholder.com/600x400?text=Project+View`;
-                container.appendChild(img);
-            });
-            if (images.length > 1) {
-                let current = 0;
-                setInterval(() => {
-                    const slides = container.querySelectorAll('.slide-img');
-                    slides[current].classList.remove('active');
-                    current = (current + 1) % slides.length;
-                    slides[current].classList.add('active');
-                }, 3500);
+            plugins: {
+                legend: { display: false }
             }
-        });
-    }
+        }
+    });
+}
 
-    /* 4. REPOSITORY LOADER (NEW) */
-    async function loadRepos() {
+/* ======================================================
+   3. PROJECT IMAGE SLIDERS
+   ====================================================== */
+
+function initSliders() {
+
+    document.querySelectorAll('.slider-container').forEach(container => {
+
+        let images = [];
+
         try {
-            const res = await fetch("https://api.github.com/users/Pranav221223/repos?sort=updated&per_page=6");
-            const repos = await res.json();
-            const container = document.getElementById("repos");
-            container.innerHTML = "";
-
-            repos.forEach(repo => {
-                const card = document.createElement("div");
-                card.className = "glass p-6 rounded-xl hover:border-teal-500/50 transition-all";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <i data-lucide="folder" class="text-teal-500 w-6 h-6"></i>
-                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-bold uppercase">${repo.language || 'Code'}</span>
-                    </div>
-                    <h3 class="font-bold text-lg mb-2 truncate">${repo.name}</h3>
-                    <p class="text-sm text-slate-400 mb-6 h-10 line-clamp-2">${repo.description || "Experimental project and source code."}</p>
-                    <a href="${repo.html_url}" target="_blank" class="text-teal-500 font-bold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all">View Repo <i data-lucide="external-link" class="w-3 h-3"></i></a>
-                `;
-                container.appendChild(card);
-            });
-            lucide.createIcons();
-        } catch (e) {
-            console.error("Repo fetch failed", e);
+            images = JSON.parse(container.dataset.slides);
+        } catch(e){
+            console.warn("Slider data invalid");
+            return;
         }
-    }
 
-    /* 5. MODAL DATA with Architecture Visualization Tags */
-    const projectData = {
-        traffic: {
-            title: "Traffic Sign Detection",
-            tag: "Computer Vision",
-            tech: ["YOLOv8", "Python", "Flask"],
-            metrics: "94% Accuracy",
-            github: "https://github.com/Pranav221223",
-            body: "A real-time road sign classification system. Using YOLOv8, the model identifies and labels 40+ different traffic signs in less than 20ms per frame.",
-            diag: ""
-        },
-        trading: {
-            title: "AI Intraday Trading",
-            tag: "Finance",
-            tech: ["TensorFlow", "Pandas", "LSTM"],
-            metrics: "30% Improvement",
-            github: "https://github.com/Pranav221223",
-            body: "Financial market predictor using Long Short-Term Memory (LSTM) networks to analyze historical candle patterns and volume for trend forecasting.",
-            diag: ""
-        },
-        pharmacy: {
-            title: "Pharmacy E-Commerce",
-            tag: "Full Stack",
-            tech: ["Node.js", "MongoDB", "WhatsApp API"],
-            metrics: "50+ Transactions/Day",
-            github: "https://github.com/Pranav221223",
-            body: "A comprehensive health-tech solution allowing patients to upload prescriptions via WhatsApp which are then parsed and managed in a central dashboard.",
-            diag: ""
+        images.forEach((src, idx) => {
+
+            const img = document.createElement('img');
+
+            img.src = src;
+
+            img.className = `slide-img ${idx === 0 ? 'active' : ''}`;
+
+            img.onerror = () => {
+                img.src = "https://via.placeholder.com/600x400?text=Project";
+            };
+
+            container.appendChild(img);
+
+        });
+
+        if (images.length > 1) {
+
+            let current = 0;
+
+            setInterval(() => {
+
+                const slides = container.querySelectorAll('.slide-img');
+
+                if(slides.length === 0) return;
+
+                slides[current].classList.remove('active');
+
+                current = (current + 1) % slides.length;
+
+                slides[current].classList.add('active');
+
+            }, 3500);
+
         }
-    };
 
-    function openProject(id) {
-        const data = projectData[id];
-        document.getElementById('modal-content').innerHTML = `
-            <div class="grid md:grid-cols-2 gap-12">
-                <div>
-                    <span class="text-teal-600 font-bold uppercase text-xs tracking-widest">${data.tag}</span>
-                    <h2 class="text-4xl font-black mt-2 mb-6">${data.title}</h2>
-                    <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">${data.body}</p>
-                    <div class="flex flex-wrap gap-2 mb-8">
-                        ${data.tech.map(t => `<span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold">${t}</span>`).join('')}
-                    </div>
-                    <div class="p-6 bg-teal-50 dark:bg-teal-900/20 rounded-2xl border border-teal-500/10">
-                        <div class="text-sm text-teal-600 font-bold uppercase tracking-tighter">Performance Metric</div>
-                        <div class="text-2xl font-black">${data.metrics}</div>
-                    </div>
-                </div>
-                <div class="flex flex-col gap-4">
-                    <div class="aspect-video bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center p-4 text-center text-slate-400 border dark:border-slate-700 overflow-hidden">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="cpu" class="w-12 h-12 mb-4 opacity-20"></i>
-                            <p class="text-sm font-medium italic mb-2">Architecture Visualization</p>
-                            <p class="text-xs opacity-60 px-4">${data.diag}</p>
-                        </div>
-                    </div>
-                    <a href="${data.github}" target="_blank" class="w-full py-4 border-2 border-slate-200 dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition text-center flex items-center justify-center gap-2">
-                        <i data-lucide="github" class="w-5 h-5"></i> View Source Code
-                    </a>
-                </div>
+    });
+
+}
+
+/* ======================================================
+   4. GITHUB REPOSITORY LOADER
+   ====================================================== */
+
+async function loadRepos() {
+
+    try {
+
+        const res = await fetch(
+            "https://api.github.com/users/Pranav221223/repos?sort=updated&per_page=6"
+        );
+
+        if(!res.ok) throw new Error("GitHub API error");
+
+        const repos = await res.json();
+
+        const container = document.getElementById("repos");
+        if(!container) return;
+
+        container.innerHTML = "";
+
+        repos.forEach(repo => {
+
+            const card = document.createElement("div");
+
+            card.className =
+                "glass p-6 rounded-xl hover:border-teal-500/50 transition-all";
+
+            card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <i data-lucide="folder" class="text-teal-500 w-6 h-6"></i>
+                <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">
+                    ${repo.language || 'Code'}
+                </span>
             </div>
-        `;
-        document.getElementById('modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        lucide.createIcons();
+
+            <h3 class="font-bold text-lg mb-2">${repo.name}</h3>
+
+            <p class="text-sm text-slate-400 mb-6">
+                ${repo.description || "Experimental project"}
+            </p>
+
+            <a href="${repo.html_url}" target="_blank"
+               class="text-teal-500 font-bold text-sm">
+               View Repo
+            </a>
+            `;
+
+            container.appendChild(card);
+
+        });
+
+        if(window.lucide) lucide.createIcons();
+
+    } catch (e) {
+
+        console.error("Repo fetch failed", e);
+
     }
 
-    function closeModal() {
-        document.getElementById('modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
+}
+
+/* ======================================================
+   5. PROJECT MODAL SYSTEM
+   ====================================================== */
+
+const projectData = {
+    traffic: {
+        title: "Traffic Sign Detection",
+        tech: ["YOLOv8", "Python", "Flask"],
+        github: "https://github.com/Pranav221223",
+        body: "Real-time road sign detection using YOLOv8."
+    },
+
+    trading: {
+        title: "AI Intraday Trading",
+        tech: ["TensorFlow", "Pandas", "LSTM"],
+        github: "https://github.com/Pranav221223",
+        body: "Stock trend forecasting using LSTM networks."
+    },
+
+    pharmacy: {
+        title: "Pharmacy E-Commerce",
+        tech: ["Node.js", "MongoDB"],
+        github: "https://github.com/Pranav221223",
+        body: "Online pharmacy system with WhatsApp ordering."
+    }
+};
+
+function openProject(id) {
+
+    const data = projectData[id];
+    if(!data) return;
+
+    document.getElementById('modal-content').innerHTML = `
+        <h2 class="text-3xl font-bold mb-4">${data.title}</h2>
+        <p class="mb-4">${data.body}</p>
+
+        <div class="flex gap-2 mb-6">
+            ${data.tech.map(t =>
+                `<span class="px-3 py-1 bg-slate-200 rounded text-xs">${t}</span>`
+            ).join('')}
+        </div>
+
+        <a href="${data.github}" target="_blank"
+           class="text-teal-500 font-bold">View Source Code</a>
+    `;
+
+    document.getElementById('modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+
+    document.getElementById('modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+
+}
+
+/* ======================================================
+   6. CONTACT FORM ANIMATION
+   ====================================================== */
+
+function initContactForm(){
+
+const contactForm = document.getElementById('contact-form');
+if(!contactForm) return;
+
+const submitBtn = document.getElementById('submit-btn');
+const btnText = document.getElementById('btn-text');
+const btnIcon = document.getElementById('btn-icon');
+const successMsg = document.getElementById('success-msg');
+const formContainer = document.getElementById('form-container');
+
+contactForm.addEventListener("submit",(e)=>{
+
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+
+    btnText.innerText = "Processing...";
+    btnIcon.classList.add('animate-spin');
+
+    setTimeout(()=>{
+
+        formContainer.classList.add('hidden');
+        successMsg.classList.remove('hidden');
+
+    },1500);
+
+});
+
+window.resetForm = function(){
+
+    formContainer.classList.remove('hidden');
+    successMsg.classList.add('hidden');
+
+    submitBtn.disabled = false;
+
+    btnText.innerText = "Send Message";
+    btnIcon.classList.remove('animate-spin');
+
+    contactForm.reset();
+
+}
+
+}
+
+/* ======================================================
+   7. PAGE INITIALIZATION
+   ====================================================== */
+
+window.addEventListener("load",()=>{
+
+    initThree();
+    initChart(document.documentElement.classList.contains('dark'));
+    initSliders();
+    loadRepos();
+    initContactForm();
+
+    if(window.lucide) lucide.createIcons();
+
+    /* ================================
+       MOBILE MENU SYSTEM (FIXED)
+       ================================ */
+
+    const menu = document.getElementById('mobile-menu');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('close-menu');
+    const menuLinks = document.querySelectorAll('.menu-link');
+
+    function openMenu(){
+        menu.classList.remove('translate-x-full');
+        document.body.style.overflow="hidden";
     }
 
-    /* 6. INTERACTIVE FORM & SMOOTH SCROLL */
-    const contactForm = document.getElementById('contact-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnIcon = document.getElementById('btn-icon');
-    const successMsg = document.getElementById('success-msg');
-    const formContainer = document.getElementById('form-container');
-
-    contactForm.onsubmit = (e) => {
-        e.preventDefault();
-        submitBtn.disabled = true;
-        btnText.innerText = "Processing...";
-        btnIcon.classList.add('animate-spin');
-        
-        setTimeout(() => {
-            formContainer.classList.add('form-success');
-            setTimeout(() => {
-                formContainer.classList.add('hidden');
-                successMsg.classList.remove('hidden');
-            }, 500);
-        }, 1500);
-    };
-
-    function resetForm() {
-        formContainer.classList.remove('hidden', 'form-success');
-        successMsg.classList.add('hidden');
-        submitBtn.disabled = false;
-        btnText.innerText = "Send Message";
-        btnIcon.classList.remove('animate-spin');
-        contactForm.reset();
-        lucide.createIcons();
+    function closeMenu(){
+        menu.classList.add('translate-x-full');
+        document.body.style.overflow="auto";
     }
 
-    /* INITIALIZATION */
-    window.onload = () => {
-        initThree();
-        initChart(document.documentElement.classList.contains('dark'));
-        initSliders();
-        loadRepos(); // FETCH LIVE DATA
-        lucide.createIcons();
-        
-        const text = "Full Stack Developer | AI Enthusiast | BCA Graduate";
-        let i = 0;
-        const type = () => { if(i < text.length) { document.getElementById('typing-container').innerHTML += text.charAt(i++); setTimeout(type, 50); } };
-        setTimeout(type, 800);
+    menuBtn?.addEventListener("click",openMenu);
+    closeBtn?.addEventListener("click",closeMenu);
 
-        document.getElementById('theme-toggle').onclick = () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            skillsChart.options.scales.y.ticks.color = isDark ? '#94a3b8' : '#475569';
+    menuLinks.forEach(link=>{
+        link.addEventListener("click",closeMenu);
+    });
+
+    menu?.addEventListener("click",(e)=>{
+        if(e.target === menu){
+            closeMenu();
+        }
+    });
+
+    /* ================================
+       TYPING ANIMATION FIX
+       ================================ */
+
+    const text = "Full Stack Developer | AI Enthusiast | BCA Graduate";
+    const typingContainer = document.getElementById('typing-container');
+
+    let i = 0;
+
+    function type(){
+        if(!typingContainer) return;
+
+        if(i < text.length){
+            typingContainer.textContent += text.charAt(i);
+            i++;
+            setTimeout(type,50);
+        }
+    }
+
+    setTimeout(type,800);
+
+    /* ================================
+       DARK MODE TOGGLE FIX
+       ================================ */
+
+    document.getElementById('theme-toggle').onclick = () => {
+
+        const isDark = document.documentElement.classList.toggle('dark');
+
+        if(skillsChart){
+            skillsChart.options.scales.y.ticks.color =
+                isDark ? '#94a3b8' : '#475569';
+
             skillsChart.update();
-        };
+        }
 
-        const menu = document.getElementById('mobile-menu');
-        document.getElementById('mobile-menu-btn').onclick = () => menu.classList.remove('translate-x-full');
-        document.getElementById('close-menu').onclick = () => menu.classList.add('translate-x-full');
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('opacity-100', 'translate-y-0'); });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     };
+
+    /* ================================
+       SCROLL ANIMATION
+       ================================ */
+
+    if('IntersectionObserver' in window){
+
+    const observer = new IntersectionObserver((entries)=>{
+
+        entries.forEach(e=>{
+
+            if(e.isIntersecting){
+                e.target.classList.add('opacity-100','translate-y-0');
+            }
+
+        });
+
+    },{threshold:0.1});
+
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+    }
+
+});
+
 </script>
 </body>
 </html>
