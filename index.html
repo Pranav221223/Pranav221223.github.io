@@ -40,7 +40,6 @@
         }
         .dark .glass { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.05); }
         
-        /* UI IMPROVEMENT: Premium Hover */
         .glass:hover {
             transform: translateY(-6px);
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
@@ -65,7 +64,7 @@
     <span id="theme-icon-dark" class="hidden dark:block">☀️</span>
 </button>
 
-<header class="fixed top-0 w-full glass z-50 border-b dark:border-slate-800">
+<header class="fixed top-0 w-full glass z-[90] border-b dark:border-slate-800">
     <nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <div class="font-extrabold text-2xl tracking-tighter gradient-text">PRANAV</div>
         <ul class="hidden md:flex gap-8 items-center font-semibold text-sm">
@@ -75,15 +74,16 @@
             <li><a href="#github" class="hover:text-teal-500 transition">Dashboard</a></li>
             <li><a href="Pranav_C_Jadhav_CV.pdf" target="_blank" class="bg-teal-600 text-white px-5 py-2 rounded-full hover:bg-teal-700 transition shadow-lg shadow-teal-500/20">Resume</a></li>
         </ul>
-        <button id="mobile-menu-btn" class="md:hidden p-2"><i data-lucide="menu"></i></button>
+        <button id="mobile-menu-btn" class="md:hidden p-2 text-teal-600"><i data-lucide="menu"></i></button>
     </nav>
 </header>
 
-<div id="mobile-menu" class="fixed inset-0 glass dark:bg-darkBg/95 z-[60] flex flex-col items-center justify-center gap-8 text-2xl font-bold translate-x-full transition-transform duration-500 ease-in-out">
-    <button id="close-menu" class="absolute top-6 right-6"><i data-lucide="x" class="w-8 h-8"></i></button>
+<div id="mobile-menu" class="fixed inset-0 glass dark:bg-darkBg/95 z-[100] flex flex-col items-center justify-center gap-8 text-2xl font-bold translate-x-full transition-transform duration-500 ease-in-out">
+    <button id="close-menu" class="absolute top-6 right-6 text-teal-600"><i data-lucide="x" class="w-8 h-8"></i></button>
     <a href="#about" class="menu-link hover:text-teal-500">About</a>
     <a href="#skills" class="menu-link hover:text-teal-500">Skills</a>
     <a href="#projects" class="menu-link hover:text-teal-500">Projects</a>
+    <a href="#github" class="menu-link hover:text-teal-500">Dashboard</a>
     <a href="#contact" class="menu-link hover:text-teal-500">Contact</a>
 </div>
 
@@ -196,14 +196,7 @@
                 <h2 class="text-4xl font-bold mb-4">Developer Dashboard</h2>
                 <p class="text-slate-400">Live activity and ecosystem metrics.</p>
             </div>
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="glass border-slate-700 p-2 rounded-2xl overflow-hidden hover:scale-[1.02]">
-                    <img src="https://github-readme-stats.vercel.app/api?username=Pranav221223&show_icons=true&theme=tokyonight&title_color=0d9488&icon_color=0d9488&hide_border=true&bg_color=0f172a" class="w-full" alt="GitHub Stats">
-                </div>
-                <div class="glass border-slate-700 p-2 rounded-2xl overflow-hidden hover:scale-[1.02]">
-                    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Pranav221223&layout=compact&theme=tokyonight&title_color=0d9488&hide_border=true&bg_color=0f172a" class="w-full" alt="Top Languages">
-                </div>
-            </div>
+           
             
             <div class="glass border-slate-700 p-4 rounded-2xl mb-12 overflow-hidden flex justify-center">
                 <img src="https://github-readme-activity-graph.vercel.app/graph?username=Pranav221223&theme=tokyo-night&hide_border=true&area=true&bg_color=0f172a" class="w-full" alt="Contribution Graph">
@@ -260,88 +253,36 @@
 </footer>
 
 <script>
-
-/* ======================================================
-   1. THREE.JS BACKGROUND (Particle Animation)
-   ====================================================== */
-
+/* 1. THREE.JS BACKGROUND */
 function initThree() {
-
     const container = document.getElementById('canvas-container');
     if(!container || !window.THREE) return;
-
     const scene = new THREE.Scene();
-
-    const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-
-    const renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: true
-    });
-
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
-
     container.appendChild(renderer.domElement);
-
     const particlesGeometry = new THREE.BufferGeometry();
     const posArray = new Float32Array(1500 * 3);
-
-    for (let i = 0; i < posArray.length; i++) {
-        posArray[i] = (Math.random() - 0.5) * 10;
-    }
-
-    particlesGeometry.setAttribute(
-        'position',
-        new THREE.BufferAttribute(posArray, 3)
-    );
-
-    const particlesMesh = new THREE.Points(
-        particlesGeometry,
-        new THREE.PointsMaterial({
-            size: 0.005,
-            color: '#0d9488',
-            transparent: true,
-            opacity: 0.5
-        })
-    );
-
+    for (let i = 0; i < posArray.length; i++) posArray[i] = (Math.random() - 0.5) * 10;
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMesh = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({ size: 0.005, color: '#0d9488', transparent: true, opacity: 0.5 }));
     scene.add(particlesMesh);
     camera.position.z = 2;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        particlesMesh.rotation.y += 0.001;
-        renderer.render(scene, camera);
-    }
-
+    function animate() { requestAnimationFrame(animate); particlesMesh.rotation.y += 0.001; renderer.render(scene, camera); }
     animate();
 }
 
-/* ======================================================
-   2. SKILLS CHART (Chart.js)
-   ====================================================== */
-
+/* 2. SKILLS CHART */
 let skillsChart;
-
 function initChart(isDark) {
-
     const canvas = document.getElementById('skillsChart');
     if(!canvas) return;
-
     const ctx = canvas.getContext('2d');
-
     const color = isDark ? '#94a3b8' : '#475569';
-
     skillsChart = new Chart(ctx, {
-
         type: 'bar',
-
         data: {
             labels: ['JavaScript', 'Python', 'ML/AI', 'Node.js', 'React/HTML'],
             datasets: [{
@@ -352,381 +293,145 @@ function initChart(isDark) {
                 borderRadius: 12
             }]
         },
-
         options: {
             responsive: true,
             maintainAspectRatio: false,
-
             scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { color: color },
-                    grid: { color: isDark ? '#1e293b' : '#e2e8f0' }
-                },
-                x: {
-                    ticks: { color: color },
-                    grid: { display: false }
-                }
+                y: { beginAtZero: true, max: 100, ticks: { color: color }, grid: { color: isDark ? '#1e293b' : '#e2e8f0' } },
+                x: { ticks: { color: color }, grid: { display: false } }
             },
-
-            plugins: {
-                legend: { display: false }
-            }
+            plugins: { legend: { display: false } }
         }
     });
 }
 
-/* ======================================================
-   3. PROJECT IMAGE SLIDERS
-   ====================================================== */
-
+/* 3. SLIDERS */
 function initSliders() {
-
     document.querySelectorAll('.slider-container').forEach(container => {
-
         let images = [];
-
-        try {
-            images = JSON.parse(container.dataset.slides);
-        } catch(e){
-            console.warn("Slider data invalid");
-            return;
-        }
-
+        try { images = JSON.parse(container.dataset.slides); } catch(e){ return; }
         images.forEach((src, idx) => {
-
             const img = document.createElement('img');
-
             img.src = src;
-
             img.className = `slide-img ${idx === 0 ? 'active' : ''}`;
-
-            img.onerror = () => {
-                img.src = "https://via.placeholder.com/600x400?text=Project";
-            };
-
+            img.onerror = () => { img.src = "https://via.placeholder.com/600x400?text=Project"; };
             container.appendChild(img);
-
         });
-
         if (images.length > 1) {
-
             let current = 0;
-
             setInterval(() => {
-
                 const slides = container.querySelectorAll('.slide-img');
-
                 if(slides.length === 0) return;
-
                 slides[current].classList.remove('active');
-
                 current = (current + 1) % slides.length;
-
                 slides[current].classList.add('active');
-
             }, 3500);
-
         }
-
     });
-
 }
 
-/* ======================================================
-   4. GITHUB REPOSITORY LOADER
-   ====================================================== */
-
+/* 4. GITHUB LOADER */
 async function loadRepos() {
-
     try {
-
-        const res = await fetch(
-            "https://api.github.com/users/Pranav221223/repos?sort=updated&per_page=6"
-        );
-
-        if(!res.ok) throw new Error("GitHub API error");
-
+        const res = await fetch("https://api.github.com/users/Pranav221223/repos?sort=updated&per_page=6");
+        if(!res.ok) throw new Error("API error");
         const repos = await res.json();
-
         const container = document.getElementById("repos");
         if(!container) return;
-
         container.innerHTML = "";
-
         repos.forEach(repo => {
-
             const card = document.createElement("div");
-
-            card.className =
-                "glass p-6 rounded-xl hover:border-teal-500/50 transition-all";
-
-            card.innerHTML = `
-            <div class="flex justify-between items-start mb-4">
-                <i data-lucide="folder" class="text-teal-500 w-6 h-6"></i>
-                <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">
-                    ${repo.language || 'Code'}
-                </span>
-            </div>
-
-            <h3 class="font-bold text-lg mb-2">${repo.name}</h3>
-
-            <p class="text-sm text-slate-400 mb-6">
-                ${repo.description || "Experimental project"}
-            </p>
-
-            <a href="${repo.html_url}" target="_blank"
-               class="text-teal-500 font-bold text-sm">
-               View Repo
-            </a>
-            `;
-
+            card.className = "glass p-6 rounded-xl hover:border-teal-500/50 transition-all";
+            card.innerHTML = `<div class="flex justify-between items-start mb-4"><i data-lucide="folder" class="text-teal-500 w-6 h-6"></i><span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">${repo.language || 'Code'}</span></div><h3 class="font-bold text-lg mb-2">${repo.name}</h3><p class="text-sm text-slate-400 mb-6">${repo.description || "Experimental project"}</p><a href="${repo.html_url}" target="_blank" class="text-teal-500 font-bold text-sm">View Repo</a>`;
             container.appendChild(card);
-
         });
-
         if(window.lucide) lucide.createIcons();
-
-    } catch (e) {
-
-        console.error("Repo fetch failed", e);
-
-    }
-
+    } catch (e) { console.error(e); }
 }
 
-/* ======================================================
-   5. PROJECT MODAL SYSTEM
-   ====================================================== */
-
+/* 5. MODAL SYSTEM */
 const projectData = {
-    traffic: {
-        title: "Traffic Sign Detection",
-        tech: ["YOLOv8", "Python", "Flask"],
-        github: "https://github.com/Pranav221223",
-        body: "Real-time road sign detection using YOLOv8."
-    },
-
-    trading: {
-        title: "AI Intraday Trading",
-        tech: ["TensorFlow", "Pandas", "LSTM"],
-        github: "https://github.com/Pranav221223",
-        body: "Stock trend forecasting using LSTM networks."
-    },
-
-    pharmacy: {
-        title: "Pharmacy E-Commerce",
-        tech: ["Node.js", "MongoDB"],
-        github: "https://github.com/Pranav221223",
-        body: "Online pharmacy system with WhatsApp ordering."
-    }
+    traffic: { title: "Traffic Sign Detection", tech: ["YOLOv8", "Python", "Flask"], github: "https://github.com/Pranav221223", body: "Real-time road sign detection using YOLOv8." },
+    trading: { title: "AI Intraday Trading", tech: ["TensorFlow", "Pandas", "LSTM"], github: "https://github.com/Pranav221223", body: "Stock trend forecasting using LSTM networks." },
+    pharmacy: { title: "Pharmacy E-Commerce", tech: ["Node.js", "MongoDB"], github: "https://github.com/Pranav221223", body: "Online pharmacy system with WhatsApp ordering." }
 };
-
 function openProject(id) {
-
     const data = projectData[id];
     if(!data) return;
-
-    document.getElementById('modal-content').innerHTML = `
-        <h2 class="text-3xl font-bold mb-4">${data.title}</h2>
-        <p class="mb-4">${data.body}</p>
-
-        <div class="flex gap-2 mb-6">
-            ${data.tech.map(t =>
-                `<span class="px-3 py-1 bg-slate-200 rounded text-xs">${t}</span>`
-            ).join('')}
-        </div>
-
-        <a href="${data.github}" target="_blank"
-           class="text-teal-500 font-bold">View Source Code</a>
-    `;
-
+    document.getElementById('modal-content').innerHTML = `<h2 class="text-3xl font-bold mb-4">${data.title}</h2><p class="mb-4">${data.body}</p><div class="flex gap-2 mb-6">${data.tech.map(t => `<span class="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded text-xs">${t}</span>`).join('')}</div><a href="${data.github}" target="_blank" class="text-teal-500 font-bold">View Source Code</a>`;
     document.getElementById('modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
+function closeModal() { document.getElementById('modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
-function closeModal() {
-
-    document.getElementById('modal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-
-}
-
-/* ======================================================
-   6. CONTACT FORM ANIMATION
-   ====================================================== */
-
+/* 6. CONTACT FORM */
 function initContactForm(){
-
-const contactForm = document.getElementById('contact-form');
-if(!contactForm) return;
-
-const submitBtn = document.getElementById('submit-btn');
-const btnText = document.getElementById('btn-text');
-const btnIcon = document.getElementById('btn-icon');
-const successMsg = document.getElementById('success-msg');
-const formContainer = document.getElementById('form-container');
-
-contactForm.addEventListener("submit",(e)=>{
-
-    e.preventDefault();
-
-    submitBtn.disabled = true;
-
-    btnText.innerText = "Processing...";
-    btnIcon.classList.add('animate-spin');
-
-    setTimeout(()=>{
-
-        formContainer.classList.add('hidden');
-        successMsg.classList.remove('hidden');
-
-    },1500);
-
-});
-
-window.resetForm = function(){
-
-    formContainer.classList.remove('hidden');
-    successMsg.classList.add('hidden');
-
-    submitBtn.disabled = false;
-
-    btnText.innerText = "Send Message";
-    btnIcon.classList.remove('animate-spin');
-
-    contactForm.reset();
-
+    const contactForm = document.getElementById('contact-form');
+    if(!contactForm) return;
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-icon');
+    const successMsg = document.getElementById('success-msg');
+    const formContainer = document.getElementById('form-container');
+    contactForm.addEventListener("submit",(e)=>{
+        e.preventDefault();
+        submitBtn.disabled = true;
+        btnText.innerText = "Processing...";
+        btnIcon.classList.add('animate-spin');
+        setTimeout(()=>{ formContainer.classList.add('hidden'); successMsg.classList.remove('hidden'); },1500);
+    });
+    window.resetForm = function(){ formContainer.classList.remove('hidden'); successMsg.classList.add('hidden'); submitBtn.disabled = false; btnText.innerText = "Send Message"; btnIcon.classList.remove('animate-spin'); contactForm.reset(); }
 }
 
-}
-
-/* ======================================================
-   7. PAGE INITIALIZATION
-   ====================================================== */
-
+/* 7. INITIALIZATION */
 window.addEventListener("load",()=>{
-
     initThree();
     initChart(document.documentElement.classList.contains('dark'));
     initSliders();
     loadRepos();
     initContactForm();
-
     if(window.lucide) lucide.createIcons();
 
-    /* ================================
-       MOBILE MENU SYSTEM (FIXED)
-       ================================ */
-/* ================================
-   MOBILE MENU SYSTEM (FIXED)
-   ================================ */
+    const menu = document.getElementById('mobile-menu');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('close-menu');
+    const menuLinks = document.querySelectorAll('.menu-link');
 
-const menu = document.getElementById('mobile-menu');
-const menuBtn = document.getElementById('mobile-menu-btn');
-const closeBtn = document.getElementById('close-menu');
-const menuLinks = document.querySelectorAll('.menu-link');
-
-function openMenu() {
-    menu.classList.remove('translate-x-full');
-    document.body.style.overflow = "hidden";
-}
-
-function closeMenu() {
-    menu.classList.add('translate-x-full');
-    document.body.style.overflow = "auto";
-}
-
-// Click the button to open
-menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    openMenu();
-});
-
-// Click the X to close
-closeBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    closeMenu();
-});
-
-// Clicking a link closes the menu
-menuLinks.forEach(link => {
-    link.addEventListener("click", closeMenu);
-});
-
-// Clicking outside the menu closes it
-menu.addEventListener("click", (e) => {
-    if (e.target === menu) {
-        closeMenu();
+    function openMenu() { 
+        menu.classList.remove('translate-x-full'); 
+        document.body.style.overflow = "hidden"; 
+        if(window.lucide) lucide.createIcons(); 
     }
-});
+    function closeMenu() { menu.classList.add('translate-x-full'); document.body.style.overflow = "auto"; }
 
-    /* ================================
-       TYPING ANIMATION FIX
-       ================================ */
+    menuBtn.addEventListener("click", (e) => { e.stopPropagation(); openMenu(); });
+    closeBtn.addEventListener("click", (e) => { e.stopPropagation(); closeMenu(); });
+    menuLinks.forEach(link => link.addEventListener("click", closeMenu));
+    menu.addEventListener("click", (e) => { if (e.target === menu) closeMenu(); });
 
     const text = "Full Stack Developer | AI Enthusiast | BCA Graduate";
     const typingContainer = document.getElementById('typing-container');
-
     let i = 0;
-
-    function type(){
-        if(!typingContainer) return;
-
-        if(i < text.length){
-            typingContainer.textContent += text.charAt(i);
-            i++;
-            setTimeout(type,50);
-        }
-    }
-
+    function type(){ if(i < text.length){ typingContainer.textContent += text.charAt(i); i++; setTimeout(type,50); } }
     setTimeout(type,800);
 
-    /* ================================
-       DARK MODE TOGGLE FIX
-       ================================ */
-
     document.getElementById('theme-toggle').onclick = () => {
-
         const isDark = document.documentElement.classList.toggle('dark');
-
         if(skillsChart){
-            skillsChart.options.scales.y.ticks.color =
-                isDark ? '#94a3b8' : '#475569';
-
+            skillsChart.options.scales.y.ticks.color = isDark ? '#94a3b8' : '#475569';
+            skillsChart.options.scales.y.grid.color = isDark ? '#1e293b' : '#e2e8f0';
+            skillsChart.options.scales.x.ticks.color = isDark ? '#94a3b8' : '#475569';
             skillsChart.update();
         }
-
     };
 
-    /* ================================
-       SCROLL ANIMATION
-       ================================ */
-
     if('IntersectionObserver' in window){
-
-    const observer = new IntersectionObserver((entries)=>{
-
-        entries.forEach(e=>{
-
-            if(e.isIntersecting){
-                e.target.classList.add('opacity-100','translate-y-0');
-            }
-
-        });
-
-    },{threshold:0.1});
-
-    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
-
+        const observer = new IntersectionObserver((entries)=>{
+            entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('opacity-100','translate-y-0'); });
+        },{threshold:0.1});
+        document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
     }
-
 });
-
 </script>
 </body>
 </html>
-
-
-
