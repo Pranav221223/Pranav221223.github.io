@@ -619,34 +619,48 @@ window.addEventListener("load",()=>{
     /* ================================
        MOBILE MENU SYSTEM (FIXED)
        ================================ */
+/* ================================
+   MOBILE MENU SYSTEM (FIXED)
+   ================================ */
 
-    const menu = document.getElementById('mobile-menu');
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const closeBtn = document.getElementById('close-menu');
-    const menuLinks = document.querySelectorAll('.menu-link');
+const menu = document.getElementById('mobile-menu');
+const menuBtn = document.getElementById('mobile-menu-btn');
+const closeBtn = document.getElementById('close-menu');
+const menuLinks = document.querySelectorAll('.menu-link');
 
-    function openMenu(){
-        menu.classList.remove('translate-x-full');
-        document.body.style.overflow="hidden";
+function openMenu() {
+    menu.classList.remove('translate-x-full');
+    document.body.style.overflow = "hidden";
+}
+
+function closeMenu() {
+    menu.classList.add('translate-x-full');
+    document.body.style.overflow = "auto";
+}
+
+// Click the button to open
+menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openMenu();
+});
+
+// Click the X to close
+closeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeMenu();
+});
+
+// Clicking a link closes the menu
+menuLinks.forEach(link => {
+    link.addEventListener("click", closeMenu);
+});
+
+// Clicking outside the menu closes it
+menu.addEventListener("click", (e) => {
+    if (e.target === menu) {
+        closeMenu();
     }
-
-    function closeMenu(){
-        menu.classList.add('translate-x-full');
-        document.body.style.overflow="auto";
-    }
-
-    menuBtn?.addEventListener("click",openMenu);
-    closeBtn?.addEventListener("click",closeMenu);
-
-    menuLinks.forEach(link=>{
-        link.addEventListener("click",closeMenu);
-    });
-
-    menu?.addEventListener("click",(e)=>{
-        if(e.target === menu){
-            closeMenu();
-        }
-    });
+});
 
     /* ================================
        TYPING ANIMATION FIX
@@ -713,5 +727,6 @@ window.addEventListener("load",()=>{
 </script>
 </body>
 </html>
+
 
 
