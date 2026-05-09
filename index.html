@@ -279,8 +279,20 @@
     <p>&copy; 2026 Pranav C Jadhav. Built with Three.js & Tailwind CSS.</p>
 </footer>
 <script>
+</script>
+/* 1. INITIALIZE ICONS & CORE */
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) lucide.createIcons();
+    initThree();
+    initTyping();
+    initSkillsChart();
+    loadRepos();
+    initContactForm();
+    initProjectSliders();
+    initScrollReveal();
+});
 
-/* 1. THREE.JS BACKGROUND */
+/* 2. THREE.JS BACKGROUND */
 function initThree() {
     const container = document.getElementById('canvas-container');
     if(!container || !window.THREE) return;
@@ -294,11 +306,11 @@ function initThree() {
     container.appendChild(renderer.domElement);
 
     const particlesGeometry = new THREE.BufferGeometry();
-    const posArray = new Float32Array(1500 * 3);
-    for (let i = 0; i < posArray.length; i++) posArray[i] = (Math.random() - 0.5) * 10;
+    const count = 1500;
+    const posArray = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) posArray[i] = (Math.random() - 0.5) * 10;
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
     const particlesMesh = new THREE.Points(
         particlesGeometry,
         new THREE.PointsMaterial({ size: 0.005, color: '#0d9488', transparent: true, opacity: 0.5 })
@@ -307,141 +319,191 @@ function initThree() {
     scene.add(particlesMesh);
     camera.position.z = 2;
 
-    let animationId;
-
     function animate() {
-        animationId = requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
         particlesMesh.rotation.y += 0.001;
         renderer.render(scene, camera);
     }
-
     animate();
 
-    // ✅ FIX: resize issue
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+}
 
-    // ✅ FIX: pause when tab inactive
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) cancelAnimationFrame(animationId);
-        else animate();
+/* 3. TYPING EFFECT */
+function initTyping() {
+    const container = document.getElementById('typing-container');
+    if (!container) return;
+    const words = ["Full Stack Developer", "AI Enthusiast", "Machine Learning Researcher", "BCA Graduate"];
+    let wordIdx = 0, charIdx = 0, isDeleting = false;
+
+    function type() {
+        const currentWord = words[wordIdx];
+        if (isDeleting) {
+            container.textContent = currentWord.substring(0, charIdx--);
+        } else {
+            container.textContent = currentWord.substring(0, charIdx++);
+        }
+
+        if (!isDeleting && charIdx > currentWord.length) {
+            isDeleting = true;
+            setTimeout(type, 2000);
+        } else if (isDeleting && charIdx < 0) {
+            isDeleting = false;
+            wordIdx = (wordIdx + 1) % words.length;
+            setTimeout(type, 500);
+        } else {
+            setTimeout(type, isDeleting ? 50 : 100);
+        }
+    }
+    type();
+}
+
+/* 4. SKILLS CHART */
+function initSkillsChart() {
+    const ctx = document.getElementById('skillsChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Frontend', 'Backend', 'Machine Learning', 'Python', 'Database'],
+            datasets: [{
+                label: 'Proficiency %',
+                data: [90, 85, 75, 88, 80],
+                backgroundColor: '#0d9488',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
     });
 }
 
-/* 4. GITHUB LOADER */
+/* 5. GITHUB LOADER */
 async function loadRepos() {
+    const container = document.getElementById("repos");
+    if(!container) return;
     try {
-        const container = document.getElementById("repos");
-
-        // ✅ ADD loading state
-        if(container) container.innerHTML = "<p class='text-center text-slate-400'>Loading repositories...</p>";
-
         const res = await fetch("https://api.github.com/users/Pranav221223/repos?sort=updated&per_page=6");
-        if(!res.ok) throw new Error("API error");
-
         const repos = await res.json();
-
-        if(!container) return;
         container.innerHTML = "";
-
         repos.forEach(repo => {
             const card = document.createElement("div");
             card.className = "glass p-6 rounded-xl hover:border-teal-500/50 transition-all";
-
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-4">
                     <i data-lucide="folder" class="text-teal-500 w-6 h-6"></i>
                     <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">${repo.language || 'Code'}</span>
                 </div>
                 <h3 class="font-bold text-lg mb-2">${repo.name}</h3>
-                <p class="text-sm text-slate-400 mb-6">${repo.description || "Experimental project"}</p>
-                <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="text-teal-500 font-bold text-sm">View Repo</a>
+                <p class="text-sm text-slate-400 mb-6 h-10 overflow-hidden">${repo.description || "Experimental project"}</p>
+                <a href="${repo.html_url}" target="_blank" class="text-teal-500 font-bold text-sm">View Repo</a>
             `;
             container.appendChild(card);
         });
-
-        if(window.lucide) lucide.createIcons();
-
+        lucide.createIcons();
     } catch (e) {
-        console.error(e);
-
-        // ✅ ADD fallback
-        document.getElementById("repos").innerHTML = "<p class='text-center text-red-400'>Failed to load repositories</p>";
+        container.innerHTML = "<p>Failed to load repositories</p>";
     }
 }
 
-/* 5. MODAL SYSTEM */
+/* 6. MODAL & SLIDER SYSTEM */
+const projectData = {
+    traffic: { title: "Traffic Sign Detection", desc: "Real-time road sign classification using YOLOv8. Optimized for edge devices with 98% accuracy." },
+    trading: { title: "AI Intraday Trading", desc: "Deep learning model utilizing LSTM networks to predict stock price movements based on historical data." },
+    pharmacy: { title: "Pharmacy E-Commerce", desc: "Full-stack medical platform featuring a secure checkout and direct WhatsApp order integration." }
+};
 
-// ✅ ADD ESC close
-document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') closeModal();
+window.openProject = function(id) {
+    const modal = document.getElementById('modal');
+    const content = document.getElementById('modal-content');
+    const data = projectData[id];
+    if(!data) return;
+    
+    content.innerHTML = `<h2 class="text-4xl font-bold mb-4">${data.title}</h2><p class="text-lg text-slate-400">${data.desc}</p>`;
+    modal.classList.remove('hidden');
+};
+
+window.closeModal = function() {
+    document.getElementById('modal').classList.add('hidden');
+};
+
+function initProjectSliders() {
+    document.querySelectorAll('.slider-container').forEach(slider => {
+        const images = JSON.parse(slider.dataset.slides);
+        images.forEach((src, idx) => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.className = `slide-img ${idx === 0 ? 'active' : ''}`;
+            slider.appendChild(img);
+        });
+        
+        let current = 0;
+        setInterval(() => {
+            const slides = slider.querySelectorAll('.slide-img');
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+        }, 3000);
+    });
+}
+
+/* 7. THEME TOGGLE */
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
 });
 
-// ✅ ADD outside click close
-document.getElementById('modal').addEventListener('click', (e) => {
-    if(e.target.id === 'modal') closeModal();
-});
+/* 8. SCROLL REVEAL */
+function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                entry.target.style.opacity = "1";
+                entry.target.style.transform = "translateY(0)";
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
 
-/* 6. CONTACT FORM */
+/* 9. CONTACT FORM */
 function initContactForm(){
     const contactForm = document.getElementById('contact-form');
     if(!contactForm) return;
 
-    const submitBtn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnIcon = document.getElementById('btn-icon');
-    const successMsg = document.getElementById('success-msg');
-    const formContainer = document.getElementById('form-container');
-
-    // ❗ KEEPING YOUR ORIGINAL GOOGLE SHEET URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwfaIX9igpez4XM8EP3myXIgrU75eTDRx_QmAOA6IFbuYcxOC_y-FpCNVYX7ti--6QV/exec';
 
     contactForm.addEventListener("submit", (e) => {
         e.preventDefault();
-
-        // ✅ ADD validation (safe, no break)
-        const email = contactForm.email.value;
-        if (!email.includes('@')) {
-            alert("Please enter a valid email");
-            return;
-        }
-
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        
         submitBtn.disabled = true;
         btnText.innerText = "Sending...";
-        btnIcon.classList.add('animate-spin');
 
-        fetch(scriptURL, { 
-            method: 'POST', 
-            body: new FormData(contactForm)
+        fetch(scriptURL, { method: 'POST', body: new FormData(contactForm) })
+        .then(() => {
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('success-msg').classList.remove('hidden');
         })
-        .then(response => {
-            formContainer.classList.add('hidden'); 
-            successMsg.classList.remove('hidden');
-        })
-        .catch(error => {
-            console.error('Error!', error.message);
-            alert("Something went wrong. Please try again.");
+        .catch(() => {
+            alert("Error sending message.");
             submitBtn.disabled = false;
             btnText.innerText = "Send Message";
-            btnIcon.classList.remove('animate-spin');
         });
     });
-
-    window.resetForm = function(){ 
-        formContainer.classList.remove('hidden'); 
-        successMsg.classList.add('hidden'); 
-        submitBtn.disabled = false; 
-        btnText.innerText = "Send Message"; 
-        btnIcon.classList.remove('animate-spin'); 
-        contactForm.reset(); 
-    }
 }
 
-</script>
-
+// Ensure ESC and click outside close modal
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+document.getElementById('modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
 </body>
 </html>
 
