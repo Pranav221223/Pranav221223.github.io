@@ -522,10 +522,26 @@ function initContactForm(){
         });
     });
 }
+/* 10. RESET FORM FUNCTION */
+window.resetForm = function() { 
+    const contactForm = document.getElementById('contact-form');
+    const formContainer = document.getElementById('form-container');
+    const successMsg = document.getElementById('success-msg');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
 
+    if (contactForm) contactForm.reset();
+    if (formContainer) formContainer.classList.remove('hidden');
+    if (successMsg) successMsg.classList.add('hidden');
+    
+    // Reset button state
+    if (submitBtn) submitBtn.disabled = false;
+    if (btnText) btnText.innerText = "Send Message";
+};
 // Global Modal Listeners
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 document.getElementById('modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
+    
     
 </script>
 </body>
