@@ -279,7 +279,7 @@
     <p>&copy; 2026 Pranav C Jadhav. Built with Three.js & Tailwind CSS.</p>
 </footer>
 <script>
-</script>
+
 /* 1. INITIALIZE ICONS & CORE */
 document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) lucide.createIcons();
@@ -504,6 +504,7 @@ function initContactForm(){
 // Ensure ESC and click outside close modal
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 document.getElementById('modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
+</script>
 </body>
 </html>
 
