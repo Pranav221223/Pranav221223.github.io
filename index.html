@@ -64,6 +64,70 @@
         .bottom-nav-item i { width: 20px; height: 20px; margin-bottom: 4px; transition: transform 0.2s; }
         .bottom-nav-item:active i { transform: scale(0.9); }
         .bottom-nav-item.active { @apply text-teal-600 dark:text-teal-500; }
+        /* ================= MOBILE FIX ================= */
+@media (max-width: 768px) {
+
+    /* Fix header overlap */
+    main {
+        padding-top: 80px;
+    }
+
+    /* Hero section fix */
+    #home h1 {
+        font-size: 2.5rem !important;
+        line-height: 1.2;
+    }
+
+    #typing-container {
+        font-size: 1rem !important;
+    }
+
+    /* Reduce section spacing */
+    section {
+        padding-top: 80px !important;
+        padding-bottom: 80px !important;
+    }
+
+    /* About image fix */
+    #about img {
+        width: 100%;
+        height: auto;
+        max-height: 350px;
+        object-fit: cover;
+    }
+
+    /* Grid fix */
+    .grid {
+        gap: 20px !important;
+    }
+
+    /* Chart height fix */
+    .chart-container {
+        height: 250px !important;
+    }
+
+    /* Button fix */
+    .glass,
+    button,
+    a {
+        font-size: 14px;
+    }
+
+    /* Fix project cards */
+    .slider-container {
+        height: 200px !important;
+    }
+
+    /* Fix big padding */
+    .p-12 {
+        padding: 20px !important;
+    }
+
+    .p-8 {
+        padding: 16px !important;
+    }
+
+}
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-darkBg dark:text-slate-100 overflow-x-hidden">
